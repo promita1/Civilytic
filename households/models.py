@@ -49,6 +49,11 @@ class Person(models.Model):
     immigration_status = models.CharField(max_length=20, choices=Status.choices)
     is_student = models.BooleanField(default=False)
     has_disability = models.BooleanField(default=False)
+    years_in_canada = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Years lived in Canada since age 18",
+    )	
 
     def __str__(self):
         return f"{self.get_relationship_display()} ({self.get_immigration_status_display()})"

@@ -48,6 +48,7 @@ def build_facts(person, today=None):
         "relationship": person.relationship,
         "is_student": person.is_student,
         "has_disability": person.has_disability,
+        "years_in_canada": person.years_in_canada,
         "province": household.province.code,
         "household_income": household.annual_income_cad,
     }

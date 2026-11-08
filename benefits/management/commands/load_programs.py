@@ -10,8 +10,8 @@ PROGRAMS = [
         "name": "Old Age Security (OAS) pension",
         "category": "seniors",
         "summary": (
-            "Monthly pension for people 65 or older. Years of residence in "
-            "Canada also matter and are not checked yet."
+            "Monthly pension for people 65 or older who have lived in Canada "
+            "long enough. Income can reduce or end payments (not checked yet)."
         ),
         "source_url": OAS_URL,
         "rules": [
@@ -26,6 +26,12 @@ PROGRAMS = [
                 "field": "immigration_status",
                 "operator": "in",
                 "value": ["citizen", "pr"],
+            },
+            {
+                "description": "Lived in Canada at least 10 years since age 18",
+                "field": "years_in_canada",
+                "operator": "gte",
+                "value": 10,
             },
         ],
     },
