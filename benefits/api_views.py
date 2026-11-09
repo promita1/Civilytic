@@ -61,7 +61,11 @@ class HouseholdResultsView(APIView):
                         "source_url": result.program.source_url,
                         "last_verified": result.program.last_verified,
                         "rules": [
-                            {"description": rule.description, "status": status.value}
+                            {
+                                "description": rule.description,
+                                "status": status.value,
+                                "group": rule.group,
+                            }
                             for rule, status in result.rule_results
                         ],
                     }

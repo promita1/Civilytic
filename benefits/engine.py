@@ -67,6 +67,7 @@ def build_facts(person, today=None):
         "is_tax_resident": person.is_tax_resident,
         "has_partner": has_partner,
         "children_count": children_count,
+        "family_type": f"{'couple' if has_partner else 'single'}_{min(children_count, 4)}",
         "province": household.province.code,
         "household_income": household.annual_income_cad,
     }
@@ -76,6 +77,19 @@ def evaluate_rule(rule, facts):
     actual = facts.get(rule.field)
     if actual is None:
         return RuleResult.UNKNOWN
+
+    if rule.operator == "lt_lookup":
+        if not isinstance(rule.value, dict):
+            return RuleResult.UNKNOWN
+        key = facts.get(rule.value.get("by"))
+        limit = rule.value.get("table", {}).get(key)
+        if limit is None:
+            return RuleResult.UNKNOWN
+        try:
+            return RuleResult.MET if actual < limit else RuleResult.NOT_MET
+        except TypeError:
+            return RuleResult.UNKNOWN
+
     compare = OPERATORS.get(rule.operator)
     if compare is None:
         return RuleResult.UNKNOWN
@@ -88,11 +102,26 @@ def evaluate_rule(rule, facts):
 def evaluate_program(program, facts):
     rules = list(program.rules.all())
     results = [(rule, evaluate_rule(rule, facts)) for rule in rules]
-    statuses = [status for _, status in results]
 
-    if RuleResult.NOT_MET in statuses:
+    # Rules with the same non-empty group are alternatives: any one is enough.
+    outcomes = []
+    groups = {}
+    for rule, status in results:
+        if rule.group:
+            groups.setdefault(rule.group, []).append(status)
+        else:
+            outcomes.append(status)
+    for statuses in groups.values():
+        if RuleResult.MET in statuses:
+            outcomes.append(RuleResult.MET)
+        elif all(s == RuleResult.NOT_MET for s in statuses):
+            outcomes.append(RuleResult.NOT_MET)
+        else:
+            outcomes.append(RuleResult.UNKNOWN)
+
+    if RuleResult.NOT_MET in outcomes:
         outcome = Outcome.DOES_NOT_QUALIFY
-    elif not rules or RuleResult.UNKNOWN in statuses:
+    elif not rules or RuleResult.UNKNOWN in outcomes:
         outcome = Outcome.NEEDS_INFO
     else:
         outcome = Outcome.MAY_QUALIFY

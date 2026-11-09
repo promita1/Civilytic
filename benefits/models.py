@@ -60,12 +60,18 @@ class EligibilityRule(models.Model):
         LTE = "lte", "less than or equal to"
         IN = "in", "is one of"
         NOT_IN = "not_in", "is not one of"
+        LT_LOOKUP = "lt_lookup", "less than (limit looked up by household type)"
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="rules")
     description = models.CharField(max_length=300)  # plain-language version
     field = models.CharField(max_length=100)  # e.g. "age", "immigration_status"
     operator = models.CharField(max_length=10, choices=Operator.choices)
     value = models.JSONField()  # e.g. 65, "pr", ["pr", "citizen"]
+    group = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Rules sharing a group are alternatives: any one is enough",
+    )
     source_url = models.URLField(blank=True)
 
     def __str__(self):

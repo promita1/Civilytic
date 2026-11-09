@@ -21,4 +21,5 @@ class Command(BaseCommand):
             for result in evaluate_person(person):
                 self.stdout.write(f"  {result.program.name}: {result.outcome.value}")
                 for rule, status in result.rule_results:
-                    self.stdout.write(f"      [{status.value}] {rule.description}")
+                    suffix = f"  (any one of: {rule.group})" if rule.group else ""
+                    self.stdout.write(f"      [{status.value}] {rule.description}{suffix}")
