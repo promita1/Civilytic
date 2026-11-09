@@ -61,6 +61,7 @@ class EligibilityRule(models.Model):
         IN = "in", "is one of"
         NOT_IN = "not_in", "is not one of"
         LT_LOOKUP = "lt_lookup", "less than (limit looked up by household type)"
+        LTE_LOOKUP = "lte_lookup", "at or below (limit looked up by household type)"
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="rules")
     description = models.CharField(max_length=300)  # plain-language version

@@ -58,6 +58,11 @@ class Person(models.Model):
         null=True,
         blank=True,
         help_text="Resident of Canada for income tax purposes (leave blank if unsure)",
+    )
+    receives_oas = models.BooleanField(
+        null=True,
+        blank=True,
+        help_text="Receives the Old Age Security pension (leave blank if unsure)",
     )	
 
     def __str__(self):

@@ -19,6 +19,7 @@ DEMO_HOUSEHOLDS = [
                 "birth_date": date(1955, 3, 15),
                 "status": "pr",
                 "years": 20,
+                "receives_oas": True,
             },
         ],
     },
@@ -110,5 +111,6 @@ class Command(BaseCommand):
                     is_student=member.get("student", False),
                     years_in_canada=member["years"],
                     is_tax_resident=member.get("tax_resident", True),
+                    receives_oas=member.get("receives_oas"),
                 )
             self.stdout.write(f"Household {household.pk}: {household.name}")

@@ -26,6 +26,12 @@ OPERATORS = {
     "not_in": lambda actual, expected: actual not in expected,
 }
 
+# Lookup operators compare against a limit chosen from a table by another fact.
+LOOKUP_OPERATORS = {
+    "lt_lookup": lambda actual, limit: actual < limit,
+    "lte_lookup": lambda actual, limit: actual <= limit,
+}
+
 
 @dataclass
 class ProgramResult:
@@ -65,9 +71,11 @@ def build_facts(person, today=None):
         "has_disability": person.has_disability,
         "years_in_canada": person.years_in_canada,
         "is_tax_resident": person.is_tax_resident,
+        "receives_oas": person.receives_oas,
         "has_partner": has_partner,
         "children_count": children_count,
         "family_type": f"{'couple' if has_partner else 'single'}_{min(children_count, 4)}",
+        "marital_group": "couple" if has_partner else "single",
         "province": household.province.code,
         "household_income": household.annual_income_cad,
     }
@@ -78,7 +86,7 @@ def evaluate_rule(rule, facts):
     if actual is None:
         return RuleResult.UNKNOWN
 
-    if rule.operator == "lt_lookup":
+    if rule.operator in LOOKUP_OPERATORS:
         if not isinstance(rule.value, dict):
             return RuleResult.UNKNOWN
         key = facts.get(rule.value.get("by"))
@@ -86,9 +94,10 @@ def evaluate_rule(rule, facts):
         if limit is None:
             return RuleResult.UNKNOWN
         try:
-            return RuleResult.MET if actual < limit else RuleResult.NOT_MET
+            met = LOOKUP_OPERATORS[rule.operator](actual, limit)
         except TypeError:
             return RuleResult.UNKNOWN
+        return RuleResult.MET if met else RuleResult.NOT_MET
 
     compare = OPERATORS.get(rule.operator)
     if compare is None:

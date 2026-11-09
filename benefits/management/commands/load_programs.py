@@ -4,6 +4,7 @@ from benefits.models import EligibilityRule, Jurisdiction, Program
 
 OAS_URL = "https://www.canada.ca/en/services/benefits/publicpensions/old-age-security/eligibility.html"
 CGEB_URL = "https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-groceries-essentials-benefit/who-eligible.html"
+ASB_URL = "https://www.alberta.ca/alberta-seniors-benefit"
 
 # Maximum adjusted family net income limits, base year 2025.
 # Copied from the official page; re-check them there each year.
@@ -19,6 +20,10 @@ CGEB_LIMITS = {
     "couple_3": 78272,
     "couple_4": 82952,
 }
+
+# Guideline income levels effective July 1, 2026, for seniors whose income
+# includes full OAS. Guidelines only. Re-check on the page each July.
+ASB_LIMITS = {"single": 32690, "couple": 53800}
 
 PROGRAMS = [
     {
@@ -96,6 +101,54 @@ PROGRAMS = [
                 "field": "household_income",
                 "operator": "lt_lookup",
                 "value": {"by": "family_type", "table": CGEB_LIMITS},
+            },
+        ],
+    },
+    {
+        "jurisdiction": "AB",
+        "name": "Alberta Seniors Benefit",
+        "category": "seniors",
+        "summary": (
+            "Monthly help with living expenses for lower-income Alberta seniors. "
+            "Income levels are guidelines only and deductions can change the "
+            "result, so also use the official Seniors Benefit Estimator. The "
+            "3-month Alberta residence condition, OAS deferral and benefit "
+            "amounts are not checked yet. Paid per person or couple."
+        ),
+        "source_url": ASB_URL,
+        "rules": [
+            {
+                "description": "Age 65 or older",
+                "field": "age",
+                "operator": "gte",
+                "value": 65,
+            },
+            {
+                "description": "Lives in Alberta",
+                "field": "province",
+                "operator": "eq",
+                "value": "AB",
+            },
+            {
+                "description": "Canadian citizen or permanent resident",
+                "field": "immigration_status",
+                "operator": "in",
+                "value": ["citizen", "pr"],
+            },
+            {
+                "description": "Receives the Old Age Security pension",
+                "field": "receives_oas",
+                "operator": "eq",
+                "value": True,
+            },
+            {
+                "description": (
+                    "Income at or below the guideline for your household "
+                    "(guideline only)"
+                ),
+                "field": "household_income",
+                "operator": "lte_lookup",
+                "value": {"by": "marital_group", "table": ASB_LIMITS},
             },
         ],
     },
