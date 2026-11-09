@@ -4,8 +4,21 @@ A privacy-first tool that helps people in Canada see which government
 programs they **may** qualify for, based on their household, immigration
 status and province.
 
-![Civilytic results page](docs/screenshot.png)
+## Screenshots
 
+All data shown is fictional, and nothing entered on the page is stored.
+
+**Enter a household**
+
+<img src="docs/screenshots/screenshot-1.png" alt="Household form" width="600">
+<img src="docs/screenshots/screenshot-2.png" alt="Household form" width="600">
+
+
+**See each program, every condition checked, and the official source**
+
+<img src="docs/screenshots/screenshot-3.png" alt="Results for CGEB, OAS and Alberta Seniors Benefit" width="600">
+
+<img src="docs/screenshots/screenshot-4.png" alt="Alberta Seniors Benefit conditions and disclaimer" width="600">
 > **Important:** Civilytic provides general information based on official
 > sources. It is not legal, immigration or tax advice. Always confirm
 > eligibility on the linked official page. The screenshot uses fictional data.
