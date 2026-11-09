@@ -1,0 +1,69 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Civilytic</title>
+  <link rel="stylesheet" href="{% static 'benefits/style.css' %}">
+</head>
+<body>
+  <header>
+    <h1>Civilytic</h1>
+    <p>Find the Canadian federal and provincial programs you may qualify for.</p>
+  </header>
+
+  <div class="notice" role="note">
+    <strong>General information only.</strong> Not legal, immigration or tax advice.
+    Always confirm on the linked official page. Nothing you enter here is stored.
+  </div>
+
+  <main>
+    <form id="check-form">
+      <fieldset>
+        <legend>Your household</legend>
+        <label>Province or territory
+          <select id="province" required>
+            <option value="">Choose...</option>
+            <option value="AB">Alberta</option>
+            <option value="BC">British Columbia</option>
+            <option value="MB">Manitoba</option>
+            <option value="NB">New Brunswick</option>
+            <option value="NL">Newfoundland and Labrador</option>
+            <option value="NS">Nova Scotia</option>
+            <option value="NT">Northwest Territories</option>
+            <option value="NU">Nunavut</option>
+            <option value="ON">Ontario</option>
+            <option value="PE">Prince Edward Island</option>
+            <option value="QC">Quebec</option>
+            <option value="SK">Saskatchewan</option>
+            <option value="YT">Yukon</option>
+          </select>
+        </label>
+        <p class="hint">Coverage so far: a few federal programs and the Alberta Seniors
+          Benefit. Other provinces will show federal programs only.</p>
+        <label>Approximate yearly household income in CAD (optional)
+          <input type="number" id="income" min="0" step="1">
+        </label>
+        <p class="hint">Include your spouse or partner's income if you have one.</p>
+      </fieldset>
+
+      <div id="members"></div>
+      <div class="actions">
+        <button type="button" id="add-member" class="secondary">Add a person</button>
+        <button type="submit" id="submit">Check programs</button>
+      </div>
+      <p id="error" role="alert"></p>
+    </form>
+
+    <section id="results" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <p>Rules come from official government pages and are checked by hand.
+      Each result links to its source and shows when it was last verified.</p>
+  </footer>
+
+  <script src="{% static 'benefits/app.js' %}"></script>
+</body>
+</html>
