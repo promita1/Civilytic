@@ -1,192 +1,128 @@
-\# Civilytic
+# Civilytic
 
-
-
-A privacy-first tool that helps people in Canada understand which government
-
-programs they \*\*may\*\* qualify for, based on their household, immigration
-
+A privacy-first tool that helps people in Canada see which government
+programs they **may** qualify for, based on their household, immigration
 status and province.
 
+![Civilytic results page](docs/screenshot.png)
 
-
-> \*\*Important:\*\* Civilytic provides general information based on official
-
+> **Important:** Civilytic provides general information based on official
 > sources. It is not legal, immigration or tax advice. Always confirm
+> eligibility on the linked official page. The screenshot uses fictional data.
 
-> eligibility on the linked official page.
-
-
-
-\## Why it exists
-
-
+## Why it exists
 
 Government benefits in Canada are spread across federal, provincial and
-
 territorial sites, each with its own rules, and the rules change. Civilytic
-
 brings them into one place and shows its sources.
 
+## How it works
 
+Eligibility is decided by **plain, testable code**, not by an AI model.
 
-\## How it works
+- **Rules are data.** Each program stores its conditions as structured rules
+  (field, operator, value), plus a source link and a last-verified date.
+- **Three-way results.** Each rule is `met`, `not_met` or `unknown` (missing
+  information). A program is `may_qualify`, `does_not_qualify` or
+  `needs_info`. The app never guesses: missing facts produce `needs_info`.
+- **Alternatives and lookups.** Rules can be grouped as "any one of these is
+  enough", and income limits can be looked up by household type.
+- **Province-aware.** A household is checked against federal programs plus its
+  own province's programs. Adding a province means adding data, not code.
+- **Household model.** Each person has their own status, birth date and
+  residence history. Partner and children are derived from the household.
+- **Stateless by design.** The web page sends the household to
+  `POST /api/check/`, which evaluates it in memory and stores nothing.
 
+## Programs covered so far
 
+| Program | Level | Source |
+|---|---|---|
+| Old Age Security (OAS) pension | Federal | canada.ca |
+| Canada Groceries and Essentials Benefit (CGEB) | Federal | canada.ca |
+| Alberta Seniors Benefit | Alberta | alberta.ca |
 
-Eligibility is decided by \*\*plain, testable code\*\*, not by an AI model.
+Every program links to its official source and carries a last-verified date.
+Rules are checked by hand against the official page before they are added.
 
+## Known limitations
 
+- Only a few programs are covered. Provinces other than Alberta show federal
+  programs only. The app says so instead of guessing.
+- Benefit **amounts** are not calculated.
+- Income checks use a rough household income. CGEB uses *adjusted family net
+  income* and Alberta Seniors Benefit income levels are *guidelines only*, so
+  results near a limit should be confirmed with the official tools.
+- Not yet checked: the 3-month Alberta residence condition and OAS deferral
+  for the Alberta Seniors Benefit.
 
-\- \*\*Rules are data.\*\* Each program stores its conditions as structured rules
-
-&#x20; (field, operator, value), plus a source link and a last-verified date.
-
-\- \*\*Three-way results.\*\* Each rule is `met`, `not\_met` or `unknown` (missing
-
-&#x20; information). A program is `may\_qualify`, `does\_not\_qualify` or `needs\_info`.
-
-&#x20; The app never guesses: missing facts produce `needs\_info`.
-
-\- \*\*Province-aware.\*\* A household is checked against federal programs plus its
-
-&#x20; own province's programs. Adding a province means adding data, not code.
-
-\- \*\*Household model.\*\* Each person has their own status, birth date and
-
-&#x20; residence history.
-
-
-
-\## Current features
-
-
-
-\- Django REST API with PostgreSQL, running in Docker
-
-\- Rules engine with unit tests
-
-\- Federal, provincial and territorial jurisdictions
-
-\- Old Age Security (OAS) pension rules, checked against the official page
-
-\- Demo households (all fictional)
-
-\- Authenticated API: users can only see their own households
-
-
-
-\## Quick start
-
-
+## Quick start
 
 Requires Docker.
 
-
-
 ```
-
 git clone <repository-url>
-
 cd Civilytic
-
 cp .env.example .env        # Windows (cmd): copy .env.example .env
-
 docker compose up -d --build
-
 docker compose exec web python manage.py migrate
-
-docker compose exec web python manage.py load\_jurisdictions
-
-docker compose exec web python manage.py load\_programs
-
-docker compose exec web python manage.py load\_demo\_data
-
+docker compose exec web python manage.py load_jurisdictions
+docker compose exec web python manage.py load_programs
+docker compose exec web python manage.py load_demo_data
 ```
 
+The `.env.example` values are for local use only. Replace them if you ever
+run this anywhere public.
 
-
-The `.env.example` values are for local use only. Never reuse them anywhere
-
-public.
-
-
-
-`load\_demo\_data` prints the IDs of the demo households. See the results for
-
-one of them:
-
-
+Then open http://localhost:8000/ and try a household. The demo command also
+prints IDs of fictional households you can inspect from the command line:
 
 ```
-
-docker compose exec web python manage.py evaluate\_household <id>
-
+docker compose exec web python manage.py evaluate_household <id>
 ```
 
-
-
-\## Run the tests
-
-
+## Run the tests
 
 ```
-
 docker compose exec web python manage.py test benefits
-
 ```
 
-
-
-\## API
-
-
+## API
 
 | Endpoint | Access | Description |
-
 |---|---|---|
-
 | `GET /api/programs/` | Public | List of programs with source links |
+| `POST /api/check/` | Public, rate-limited | Evaluate a household sent in the request. Nothing is stored. |
+| `GET /api/households/<id>/results/` | Owner only | Results for a saved household |
 
-| `GET /api/households/<id>/results/` | Owner only | Eligibility results per person |
+An example request is in [`docs/example-request.json`](docs/example-request.json):
 
+```
+curl -X POST http://localhost:8000/api/check/ -H "Content-Type: application/json" --data-binary @docs/example-request.json
+```
 
+## Project layout
 
-\## Data and verification
+```
+benefits/     rules engine, program data, API and web page
+households/   household and person models
+config/       Django settings
+docs/         example request and screenshot
+```
 
+## Roadmap
 
+- [ ] More federal and Alberta programs, then more provinces
+- [ ] Document upload with OCR and AI field extraction
+- [ ] Plain-language explanations and cited answers (retrieval + LLM)
+- [ ] Scheduled checks for changes on official pages
+- [ ] Evaluation results (accuracy of extraction and answers)
 
-Every program links to its official source and carries a last-verified date.
+## Tech stack
 
-Rules are checked by hand against the official page before they are added.
+Python, Django, Django REST Framework, PostgreSQL, Docker, WhiteNoise,
+Gunicorn. Plain HTML, CSS and JavaScript for the front end.
 
-Not everything is covered yet, and the app says so instead of guessing.
+## License
 
-
-
-\## Roadmap
-
-
-
-\- \[ ] More federal and Alberta programs, then more provinces
-
-\- \[ ] Household-level rules (child benefits, income thresholds)
-
-\- \[ ] Document upload with OCR and AI field extraction
-
-\- \[ ] Plain-language explanations and cited answers (retrieval + LLM)
-
-\- \[ ] Scheduled checks for changes on official pages
-
-\- \[ ] Web frontend
-
-\- \[ ] Evaluation results (accuracy of extraction and answers)
-
-
-
-\## Tech stack
-
-
-
-Python, Django, Django REST Framework, PostgreSQL, Docker, WhiteNoise, Gunicorn.
-
+MIT
