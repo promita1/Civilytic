@@ -8,6 +8,7 @@
       "immigration_status": "pr",
       "years_in_canada": 20,
       "is_tax_resident": true,
+      "receives_oas": true
     }
   ]
 }
