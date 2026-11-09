@@ -46,9 +46,10 @@ def calculate_age(birth_date, today=None):
     return today.year - birth_date.year - (0 if had_birthday else 1)
 
 
-def build_facts(person, today=None):
+def build_facts(person, today=None, members=None):
     household = person.household
-    members = list(household.members.all())
+    if members is None:
+        members = list(household.members.all())
 
     # Partner and children are household facts. They apply to the adults who
     # would claim a family benefit, not to the children themselves.
@@ -137,10 +138,10 @@ def evaluate_program(program, facts):
     return ProgramResult(program=program, outcome=outcome, rule_results=results)
 
 
-def evaluate_person(person, programs=None, today=None):
+def evaluate_person(person, programs=None, today=None, members=None):
     from .models import Program
 
-    facts = build_facts(person, today)
+    facts = build_facts(person, today, members)
     if programs is None:
         programs = (
             Program.objects.filter(

@@ -1,0 +1,13 @@
+{
+  "province": "AB",
+  "household_income": 32000,
+  "members": [
+    {
+      "relationship": "self",
+      "birth_date": "1955-03-15",
+      "immigration_status": "pr",
+      "years_in_canada": 20,
+      "is_tax_resident": true,
+    }
+  ]
+}
