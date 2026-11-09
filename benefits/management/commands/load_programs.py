@@ -76,14 +76,14 @@ PROGRAMS = [
                 "group": "age_or_family",
             },
             {
-                "description": "Under 19 with a spouse or common-law partner",
+                "description": "Has a spouse or common-law partner (counts for people under 19)",
                 "field": "has_partner",
                 "operator": "eq",
                 "value": True,
                 "group": "age_or_family",
             },
             {
-                "description": "Under 19 and a parent with a child",
+                "description": "Is a parent with a child in the household (counts for people under 19)",
                 "field": "children_count",
                 "operator": "gte",
                 "value": 1,

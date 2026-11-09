@@ -25,7 +25,7 @@ DEMO_HOUSEHOLDS = [
     {
         "name": "Demo: family with a young child",
         "province": "AB",
-        "income": 78000,
+        "income": 55000,
         "members": [
             {
                 "relationship": "self",
@@ -109,5 +109,6 @@ class Command(BaseCommand):
                     immigration_status=member["status"],
                     is_student=member.get("student", False),
                     years_in_canada=member["years"],
+                    is_tax_resident=member.get("tax_resident", True),
                 )
             self.stdout.write(f"Household {household.pk}: {household.name}")
