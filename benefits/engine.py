@@ -42,6 +42,21 @@ def calculate_age(birth_date, today=None):
 
 def build_facts(person, today=None):
     household = person.household
+    members = list(household.members.all())
+
+    # Partner and children are household facts. They apply to the adults who
+    # would claim a family benefit, not to the children themselves.
+    is_adult_claimant = person.relationship in ("self", "partner")
+    has_partner = person.relationship == "partner" or (
+        person.relationship == "self"
+        and any(m.relationship == "partner" for m in members)
+    )
+    children_count = (
+        sum(1 for m in members if m.relationship == "child")
+        if is_adult_claimant
+        else 0
+    )
+
     return {
         "age": calculate_age(person.birth_date, today),
         "immigration_status": person.immigration_status,
@@ -49,6 +64,9 @@ def build_facts(person, today=None):
         "is_student": person.is_student,
         "has_disability": person.has_disability,
         "years_in_canada": person.years_in_canada,
+        "is_tax_resident": person.is_tax_resident,
+        "has_partner": has_partner,
+        "children_count": children_count,
         "province": household.province.code,
         "household_income": household.annual_income_cad,
     }

@@ -53,6 +53,11 @@ class Person(models.Model):
         null=True,
         blank=True,
         help_text="Years lived in Canada since age 18",
+    )
+    is_tax_resident = models.BooleanField(
+        null=True,
+        blank=True,
+        help_text="Resident of Canada for income tax purposes (leave blank if unsure)",
     )	
 
     def __str__(self):
