@@ -1,5 +1,7 @@
 # Civilytic
 
+![Tests](https://github.com/promita1/Civilytic/actions/workflows/tests.yml/badge.svg)
+
 A privacy-first tool that helps people in Canada see which government
 programs they **may** qualify for, based on their household, immigration
 status and province.
